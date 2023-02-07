@@ -2,12 +2,14 @@ import React, { Component } from 'react';
 import DataStreamer, { ServerRespond } from './DataStreamer';
 import Graph from './Graph';
 import './App.css';
+import { setInterval } from 'timers';
 
 /**
  * State declaration for <App />
  */
 interface IState {
   data: ServerRespond[],
+  showGraph: boolean,
 }
 
 /**
@@ -22,6 +24,7 @@ class App extends Component<{}, IState> {
       // data saves the server responds.
       // We use this state to parse data down to the child element (Graph) as element property
       data: [],
+      showGraph: false,
     };
   }
 
@@ -29,18 +32,32 @@ class App extends Component<{}, IState> {
    * Render Graph react component with state.data parse as property data
    */
   renderGraph() {
-    return (<Graph data={this.state.data}/>)
+    if(this.state.showGraph==true)
+      return (<Graph data={this.state.data}/>)
   }
 
   /**
    * Get new data from server and update the state with the new data
    */
   getDataFromServer() {
-    DataStreamer.getData((serverResponds: ServerRespond[]) => {
-      // Update the state by creating a new array of data that consists of
-      // Previous data in the state and the new data from server
-      this.setState({ data: [...this.state.data, ...serverResponds] });
-    });
+    //variable for keeping a check on number of requests
+    let n = 0
+    const interval = setInterval(()=>{
+      DataStreamer.getData((serverResponds: ServerRespond[]) => {
+        // Update the state by creating a new array of data that consists of
+        // Previous data in the state and the new data from server
+        this.setState({ data: serverResponds,showGraph:true });
+    })
+    //increament the request counter
+    n++;
+    //apply check on number of requests to prevent infinite loop
+    if(n>1000){
+      //if number of requests increase from 1000, cancel the repeating action
+      //in other words
+      //limit the number of requests to 1000
+      clearInterval(interval)
+    }
+    },100);
   }
 
   /**
