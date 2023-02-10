@@ -32,7 +32,7 @@ class App extends Component<{}, IState> {
    * Render Graph react component with state.data parse as property data
    */
   renderGraph() {
-    if(this.state.showGraph==true)
+    if(this.state.showGraph)
       return (<Graph data={this.state.data}/>)
   }
 
@@ -47,17 +47,14 @@ class App extends Component<{}, IState> {
         // Update the state by creating a new array of data that consists of
         // Previous data in the state and the new data from server
         this.setState({ data: serverResponds,showGraph:true });
-    })
-    //increament the request counter
-    n++;
-    //apply check on number of requests to prevent infinite loop
-    if(n>1000){
-      //if number of requests increase from 1000, cancel the repeating action
-      //in other words
-      //limit the number of requests to 1000
-      clearInterval(interval)
-    }
-    },100);
+        });
+        //increament the request counter
+        n++;
+        //apply check on number of requests to prevent infinite loop
+        if(n>1000){
+          clearInterval(interval);
+        }
+        },100);
   }
 
   /**
